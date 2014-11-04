@@ -4,7 +4,7 @@
 # Title: QT GUI signal reader (from USRP)
 # Author: MR
 # Description: Read input from USRP and display output with and without filtering
-# Generated: Tue Nov  4 12:52:23 2014
+# Generated: Tue Nov  4 13:11:30 2014
 ##################################################
 
 from PyQt4 import Qt

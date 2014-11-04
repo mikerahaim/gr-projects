@@ -4,7 +4,7 @@
 # Title: WX GUI signal reader (from USRP)
 # Author: MR
 # Description: Read input from USRP and display output with and without filtering
-# Generated: Tue Nov  4 12:52:51 2014
+# Generated: Tue Nov  4 13:20:34 2014
 ##################################################
 
 from gnuradio import eng_notation
@@ -35,7 +35,7 @@ class TestRx_WX(grc_wxgui.top_block_gui):
         self.filter_transition = filter_transition = 10000
         self.filter_gain = filter_gain = 1
         self.co_freq = co_freq = samp_rate/2
-        self.car_freq = car_freq = 0
+        self.car_freq = car_freq = 1000000
 
         ##################################################
         # Blocks
