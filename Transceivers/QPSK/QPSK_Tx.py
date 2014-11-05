@@ -4,7 +4,7 @@
 # Title: QPSK Tx
 # Author: MR
 # Description: QPSK Transmitter
-# Generated: Tue Nov  4 15:20:12 2014
+# Generated: Wed Nov  5 13:57:27 2014
 ##################################################
 
 from PyQt4 import Qt
@@ -57,13 +57,30 @@ class QPSK_Tx(gr.top_block, Qt.QWidget):
         self.sym_rate = sym_rate = 500000
         self.samp_rate = samp_rate = 2000000
         self.sps = sps = int(samp_rate/sym_rate)
-        self.qpsk = qpsk = digital.constellation_rect(([-0.707-0.707j, -0.707+0.707j, 0.707+0.707j, 0.707-0.707j]), ([0, 1, 2, 3]), 4, 2, 2, 1, 1).base()
+        self.sig_amp = sig_amp = 0.5
+        self.qpsk = qpsk = digital.constellation_rect(([-1-1j, -1+1j, 1+1j, 1-1j]), ([0, 1, 2, 3]), 4, 2, 2, 1, 1).base()
         self.car_freq = car_freq = 1000000
         self.arity = arity = 4
 
         ##################################################
         # Blocks
         ##################################################
+        self._sig_amp_layout = Qt.QHBoxLayout()
+        self._sig_amp_layout.addWidget(Qt.QLabel("Signal Amplitude"+": "))
+        class qwt_counter_pyslot(Qwt.QwtCounter):
+            def __init__(self, parent=None):
+                Qwt.QwtCounter.__init__(self, parent)
+            @pyqtSlot('double')
+            def setValue(self, value):
+                super(Qwt.QwtCounter, self).setValue(value)
+        self._sig_amp_counter = qwt_counter_pyslot()
+        self._sig_amp_counter.setRange(0, 1, 0.05)
+        self._sig_amp_counter.setNumButtons(2)
+        self._sig_amp_counter.setMinimumWidth(200)
+        self._sig_amp_counter.setValue(self.sig_amp)
+        self._sig_amp_layout.addWidget(self._sig_amp_counter)
+        self._sig_amp_counter.valueChanged.connect(self.set_sig_amp)
+        self.top_layout.addLayout(self._sig_amp_layout)
         self._car_freq_layout = Qt.QHBoxLayout()
         self._car_freq_layout.addWidget(Qt.QLabel("Carrier Frequency"+": "))
         class qwt_counter_pyslot(Qwt.QwtCounter):
@@ -109,23 +126,25 @@ class QPSK_Tx(gr.top_block, Qt.QWidget):
         
         
           
-        self.digital_psk_mod_0 = digital.psk.psk_mod(
-          constellation_points=arity,
-          mod_code="gray",
+        self.digital_constellation_modulator_0 = digital.generic_mod(
+          constellation=qpsk,
           differential=True,
           samples_per_symbol=sps,
+          pre_diff_code=True,
           excess_bw=0.35,
           verbose=False,
           log=False,
           )
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vcc((sig_amp, ))
         self.analog_random_source_x_0_0 = blocks.vector_source_b(map(int, numpy.random.randint(0, 256, 10000)), True)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.digital_psk_mod_0, 0), (self.uhd_usrp_sink_0, 0))
-        self.connect((self.digital_psk_mod_0, 0), (self.qtgui_sink_x_0, 0))
-        self.connect((self.analog_random_source_x_0_0, 0), (self.digital_psk_mod_0, 0))
+        self.connect((self.digital_constellation_modulator_0, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.analog_random_source_x_0_0, 0), (self.digital_constellation_modulator_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.uhd_usrp_sink_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_sink_x_0, 0))
 
 
     def closeEvent(self, event):
@@ -145,8 +164,8 @@ class QPSK_Tx(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.uhd_usrp_sink_0.set_samp_rate(self.samp_rate)
         self.set_sps(int(self.samp_rate/self.sym_rate))
+        self.uhd_usrp_sink_0.set_samp_rate(self.samp_rate)
         self.qtgui_sink_x_0.set_frequency_range(0, self.samp_rate)
 
     def get_sps(self):
@@ -154,6 +173,14 @@ class QPSK_Tx(gr.top_block, Qt.QWidget):
 
     def set_sps(self, sps):
         self.sps = sps
+
+    def get_sig_amp(self):
+        return self.sig_amp
+
+    def set_sig_amp(self, sig_amp):
+        self.sig_amp = sig_amp
+        Qt.QMetaObject.invokeMethod(self._sig_amp_counter, "setValue", Qt.Q_ARG("double", self.sig_amp))
+        self.blocks_multiply_const_vxx_0.set_k((self.sig_amp, ))
 
     def get_qpsk(self):
         return self.qpsk
@@ -166,8 +193,8 @@ class QPSK_Tx(gr.top_block, Qt.QWidget):
 
     def set_car_freq(self, car_freq):
         self.car_freq = car_freq
-        self.uhd_usrp_sink_0.set_center_freq(self.car_freq, 0)
         Qt.QMetaObject.invokeMethod(self._car_freq_counter, "setValue", Qt.Q_ARG("double", self.car_freq))
+        self.uhd_usrp_sink_0.set_center_freq(self.car_freq, 0)
 
     def get_arity(self):
         return self.arity
