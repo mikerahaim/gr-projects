@@ -4,7 +4,7 @@
 # Title: QPSK Receiver
 # Author: MR
 # Description: Receiver from GNU Radio tutorial 7, implemented with the USRP
-# Generated: Tue Nov  4 15:20:08 2014
+# Generated: Wed Nov  5 13:29:46 2014
 ##################################################
 
 from PyQt4 import Qt
@@ -309,7 +309,7 @@ class QPSK_Rx(gr.top_block, Qt.QWidget):
         self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(sps, timing_loop_bw, (rrc_taps), nfilts, nfilts/2, 2, sps_out)
         self.digital_costas_loop_cc_0 = digital.costas_loop_cc(phase_bw, arity, False)
         self.digital_cma_equalizer_cc_0 = digital.cma_equalizer_cc(11, 1, eq_gain, sps_out)
-        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vcc((100, ))
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vcc((10, ))
 
         ##################################################
         # Connections
