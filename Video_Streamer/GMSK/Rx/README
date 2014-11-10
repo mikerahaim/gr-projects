@@ -1,1 +1,3 @@
-In order to run the receiver and play to mplayer, use the receive_video.sh bash script. If edits are made through GRC, build the python script first (in GRC) and then execute with receive_video.sh
+In order to run the receiver and play to mplayer, you should make a fifo in the local directory (mkfifo rxfifo.ogg), then use the receive_video.sh bash script. Note that the receiver should be run first, then the transmitter.
+
+If edits are made through GRC, build the python script first (in GRC) and then execute with receive_video.sh
