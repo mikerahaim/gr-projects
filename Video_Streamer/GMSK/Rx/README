@@ -1,0 +1,1 @@
+In order to run the receiver and play to mplayer, use the receive_video.sh bash script. If edits are made through GRC, build the python script first (in GRC) and then execute with receive_video.sh
