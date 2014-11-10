@@ -1,0 +1,5 @@
+In order to run the transmitter, you should first make a fifo in the local directory (mkfifo txfifo.ogg), then use the stream_video.sh script to run gstreamer and the python script for the transmitter.
+
+If edits are made through GRC, build the python scropt first (in GRC) and then execute with stream_video.sh
+
+NOTE: To change the video source (e.g., if you have multiple video cameras), edit stream_video.sh by changing the "device=/dev/video0" to the appropriate device.
